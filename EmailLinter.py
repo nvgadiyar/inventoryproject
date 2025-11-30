@@ -30,11 +30,22 @@ def validate_and_report_emails(filename):
 					continue
 
 				# Normalize common problems before validating:
-				# - Remove spaces immediately before or after '@' and '.' characters
-				#   so inputs like 'chloe.lopez@ example .com' become
-				#   'chloe.lopez@example.com'. This fixes simple formatting errors
-				#   while avoiding aggressive corrections inside the local part.
+				# 1) Remove spaces immediately before or after '@' and '.' characters
+				#    so 'chloe.lopez@ example .com' => 'chloe.lopez@example.com'.
+				# 2) In the domain part, convert commas to dots and collapse repeated
+				#    dots (example..com => example.com). This fixes common formatting
+				#    errors while avoiding aggressive changes to the local part.
 				candidate = re.sub(r'(?<=[@.])\s+|\s+(?=[@.])', '', line)
+
+				# If there's exactly one '@', apply domain-specific normalizations
+				if candidate.count('@') == 1:
+					local_part, domain_part = candidate.split('@', 1)
+
+					# replace commas with dots in domain and collapse consecutive dots
+					domain_fixed = domain_part.replace(',', '.')
+					domain_fixed = re.sub(r'\.{2,}', '.', domain_fixed)
+
+					candidate = f"{local_part}@{domain_fixed}"
 
 				# If normalization changed the string, validate the fixed one;
 				# otherwise validate the original trimmed input.
