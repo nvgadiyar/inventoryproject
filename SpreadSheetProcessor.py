@@ -15,19 +15,30 @@ def print_contacts_from_csv(filename):
 	try:
 		with open(filename, newline='', encoding='utf-8') as csvfile:
 			reader = csv.reader(csvfile)
-			for row in reader:
-				# Skip empty rows
-				if not row:
-					continue
+			# open output CSV for cleaned contacts
+			with open('cleaned_contacts.csv', 'w', newline='', encoding='utf-8') as outfile:
+				writer = csv.writer(outfile)
+				# write header row for cleaned contacts
+				writer.writerow(['First_name', 'Last_name', 'Email', 'Phone'])
 
-				# If there are more than four columns, take the first four.
-				# If fewer, pad with empty strings so unpacking doesn't fail.
-				padded = (row + [""] * 4)[:4]
-				first_name, last_name, email, phone = padded
-				cleanPhoneNumber = validate_and_format_phone_number(phone)
-				cleanEmail = validate_and_report_email(email)
-				print(f"First name: {first_name},\nLast name: {last_name},\nCleanEmail: {cleanEmail},\nEmail: {email},\nPhone: {cleanPhoneNumber},\nPhone: {phone}")
-				print('-' * 40)
+				for i, row in enumerate(reader):
+					# Skip header row (first row)
+					if i == 0:
+						continue
+					# Skip empty rows
+					if not row:
+						continue
+
+					# If there are more than four columns, take the first four.
+					# If fewer, pad with empty strings so unpacking doesn't fail.
+					padded = (row + [""] * 4)[:4]
+					first_name, last_name, email, phone = padded
+					cleanPhoneNumber = validate_and_format_phone_number(phone)
+					cleanEmail = validate_and_report_email(email)
+					print(f"First name: {first_name},\nLast name: {last_name},\nCleanEmail: {cleanEmail},\nEmail: {email},\nPhone: {cleanPhoneNumber},\nPhone: {phone}")
+					print('-' * 40)
+					# write cleaned row to output CSV
+					writer.writerow([first_name, last_name, cleanEmail, cleanPhoneNumber])
 	except FileNotFoundError:
 		print(f"File not found: {filename}")
 	except Exception as e:
