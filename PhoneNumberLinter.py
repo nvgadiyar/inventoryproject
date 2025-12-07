@@ -3,9 +3,9 @@ import re
 valid_numbers = []
 invalid_numbers = []
 
-def validate_and_format_phone_number(phonenumber):
+def validate_and_format_phone_number(phone_number):
     # Strip whitespace and skip empty lines or comments
-    line = phonenumber.strip()
+    line = phone_number.strip()
     if not line or line.startswith('#'):
         return
                 
